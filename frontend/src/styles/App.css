@@ -1,0 +1,91 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.app-header h1 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.app-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.app-main-fullscreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+
+.app-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  border-top: 1px solid #e1e1e1;
+}
+
+.app-fullscreen .app-header {
+  text-align: center;
+  margin-bottom: 0;
+  padding: 15px 0;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border-bottom: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.app-fullscreen .app-header h1 {
+  margin-bottom: 5px;
+  color: white;
+}
+
+.app-fullscreen .app-header p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin: 0;
+}
+
+.app-fullscreen .app-footer {
+  margin-top: 0;
+  padding: 10px 0;
+  background-color: #f5f7fb;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  border-top: 1px solid #e1e1e1;
+  z-index: 10;
+} 

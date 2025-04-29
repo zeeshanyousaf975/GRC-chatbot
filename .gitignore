@@ -1,0 +1,78 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.env
+
+# Build outputs
+/build
+/dist
+*.egg-info/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+**/node_modules/
+**/package-lock.json
+**/.pnp
+**/.pnp.js
+**/coverage/
+**/out/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Editor directories and files
+**/.idea/
+**/.vscode/
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
+**/*.sw?
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.Python
+**/env/
+**/venv/
+**/ENV/
+
+# Large files
+**/*.ckpt
+**/*.h5
+**/*.model
+**/*.weights
+**/*.tar
+**/*.tar.gz
+**/*.zip
+**/*.rar
+**/*.7z
+**/*.iso
+
+# Virtual environment directory
+.venv/ 
