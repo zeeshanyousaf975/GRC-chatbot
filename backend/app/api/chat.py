@@ -180,22 +180,60 @@ async def clear_chat_history(
     x_session_id: Optional[str] = Header(None),
     cookie_session_id: Optional[str] = Cookie(None, alias="session_id")
 ):
-    """Clear the chat history for a session"""
-    # Determine which session ID to use
-    active_session_id = session_id or x_session_id or cookie_session_id
-    
-    # If no session ID is provided, use the default
-    if not active_session_id:
-        active_session_id = chat_history_service.default_session_id
-    
-    # Clear history
-    success = chat_history_service.clear_conversation(active_session_id)
-    
-    return {
-        "success": success,
-        "session_id": active_session_id,
-        "message": "Chat history cleared" if success else "Failed to clear chat history"
-    }
+    """Clear the chat history and context for a session"""
+    try:
+        # Log all incoming session IDs
+        logger.debug(f"Clear request received with session IDs - Query: {session_id}, Header: {x_session_id}, Cookie: {cookie_session_id}")
+        
+        # Determine which session ID to use
+        active_session_id = session_id or x_session_id or cookie_session_id
+        logger.debug(f"Using active session ID: {active_session_id}")
+        
+        # If no session ID is provided, use the default
+        if not active_session_id:
+            active_session_id = chat_history_service.default_session_id
+            logger.debug(f"No session ID provided, using default: {active_session_id}")
+        
+        # Log current state before clearing
+        conversation = chat_history_service.get_conversation(active_session_id)
+        if conversation:
+            logger.debug(f"Found conversation to clear with {len(conversation.messages)} messages")
+        else:
+            logger.debug("No existing conversation found")
+        
+        # Clear chat history
+        success = chat_history_service.clear_conversation(active_session_id)
+        logger.debug(f"Clear conversation result: {success}")
+        
+        if success:
+            # Clear agent context
+            chat_agent_service.clear_context(active_session_id)
+            logger.debug("Agent context cleared")
+            
+            # Create a new conversation to ensure fresh context
+            new_id = chat_history_service.create_conversation(active_session_id)
+            logger.debug(f"Created new conversation with ID: {new_id}")
+            
+            return {
+                "success": True,
+                "session_id": active_session_id,
+                "message": "Chat history and context cleared successfully"
+            }
+        else:
+            logger.warning(f"Failed to clear conversation: {active_session_id}")
+            return {
+                "success": False,
+                "session_id": active_session_id,
+                "message": "Failed to clear chat history"
+            }
+            
+    except Exception as e:
+        logger.error(f"Error clearing chat history: {e}", exc_info=True)
+        return {
+            "success": False,
+            "session_id": active_session_id if 'active_session_id' in locals() else None,
+            "message": f"Error clearing chat history: {str(e)}"
+        }
 
 @router.get("/health")
 async def router_health_check():
@@ -256,7 +294,6 @@ async def debug_chat_status(
             "active_conversations": all_conversations,
             "current_conversation": current_conversation,
             "message_history": current_messages,
-            "max_history_length": chat_agent_service.max_history_length
         }
     except Exception as e:
         logger.error(f"Error in debug endpoint: {str(e)}", exc_info=True)

@@ -91,12 +91,17 @@ const ChatWindow: React.FC = () => {
   };
 
   const handleClearChat = async () => {
+    if (isClearingChat) return; // Prevent multiple clear attempts
+    
     setIsClearingChat(true);
+    setError(null);
+    
     try {
-      // Clear chat history on the server
-      const success = await clearChatHistory();
+      console.log('[DEBUG] Starting chat clear process');
+      const response = await clearChatHistory();
+      console.log('[DEBUG] Clear chat response:', response);
       
-      if (success) {
+      if (response.success) {
         // Reset messages to just the welcome message
         const welcomeMessage: Message = {
           id: 'welcome',
@@ -106,11 +111,19 @@ const ChatWindow: React.FC = () => {
         };
         setMessages([welcomeMessage]);
         setError(null);
+        console.log('[DEBUG] Chat cleared successfully');
       } else {
-        setError('Failed to clear chat history. Please try again.');
+        throw new Error(response.message || 'Failed to clear chat history');
       }
-    } catch (err) {
-      console.error('Error clearing chat:', err);
+    } catch (err: any) {
+      console.error('[DEBUG] Error in handleClearChat:', err);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        content: err.message || 'Failed to clear chat history. Please try again.',
+        role: 'error',
+        timestamp: new Date(),
+      };
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
       setError('Failed to clear chat history. Please try again.');
     } finally {
       setIsClearingChat(false);
@@ -121,13 +134,6 @@ const ChatWindow: React.FC = () => {
     <div className="chat-window">
       <div className="chat-header">
         <h3>Chat Agent</h3>
-        <button 
-          className="clear-chat-button" 
-          onClick={handleClearChat}
-          disabled={isClearingChat || messages.length <= 1}
-        >
-          {isClearingChat ? 'Clearing...' : 'Clear Chat'}
-        </button>
       </div>
       <div className="chat-container">
         <MessageList messages={messages} />
@@ -149,7 +155,17 @@ const ChatWindow: React.FC = () => {
             </button>
           </div>
         )}
-        <MessageInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        
+        <div className="chat-controls">
+          <button 
+            className="clear-chat-button"
+            onClick={handleClearChat}
+            disabled={isClearingChat || messages.length <= 1}
+          >
+            {isClearingChat ? 'Clearing...' : 'Clear Chat'}
+          </button>
+          <MessageInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        </div>
       </div>
     </div>
   );

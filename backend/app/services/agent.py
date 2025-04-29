@@ -20,8 +20,20 @@ class ChatAgentService:
         logger.debug("Initializing chat agent service")
         logger.debug("Chat agent service initialized")
         
-        # Maximum number of previous messages to include for context
-        self.max_history_length = 20  # Increased from 10
+        # Store active conversations and their contexts
+        self._active_contexts: Dict[str, List[Dict[str, str]]] = {}
+    
+    def _get_context(self, session_id: str) -> List[Dict[str, str]]:
+        """Get the current context for a session"""
+        if session_id not in self._active_contexts:
+            self._active_contexts[session_id] = [{"role": "system", "content": self.system_message}]
+        return self._active_contexts[session_id]
+    
+    def clear_context(self, session_id: str) -> None:
+        """Clear the context for a specific session"""
+        if session_id in self._active_contexts:
+            del self._active_contexts[session_id]
+        logger.debug(f"Cleared context for session: {session_id}")
     
     async def generate_response(self, message: str, session_id: Optional[str] = None) -> str:
         """
@@ -38,50 +50,34 @@ class ChatAgentService:
             logger.debug(f"Generating response to: {message}")
             logger.debug(f"Using session ID: {session_id}")
             
-            # Save the user message to history
-            chat_history_service.add_message(message, "user", session_id)
+            if not session_id:
+                session_id = chat_history_service.default_session_id
             
-            # Build message history for context
-            messages = []
+            # Get current context
+            context = self._get_context(session_id)
             
-            # Add system message
-            messages.append({"role": "system", "content": self.system_message})
-            
-            # Add conversation history
-            history = chat_history_service.get_message_history(session_id, self.max_history_length)
-            logger.debug(f"Retrieved {len(history)} message(s) from history for context")
-            
-            # Include full conversation history
-            if history:
-                # Add all messages from history
-                messages.extend(history)
-                logger.debug(f"Added all messages from history to context")
-            
-            # Log the full conversation context being sent to the LLM
-            logger.debug(f"Full conversation context (first 100 chars of each message):")
-            for idx, msg in enumerate(messages):
-                logger.debug(f"[{idx}] {msg['role']}: {msg['content'][:100]}...")
+            # Add user message to context
+            context.append({"role": "user", "content": message})
             
             # Generate response
-            response = await groq_llm_service.generate_response(messages)
-            logger.debug(f"Generated response: {response[:100]}...")
+            response = await groq_llm_service.generate_response(context)
             
-            # Save assistant response to history
-            added_message = chat_history_service.add_message(response, "assistant", session_id)
-            if added_message:
-                logger.debug(f"Successfully saved assistant response to history with session_id: {session_id}")
-            else:
-                logger.warning(f"Failed to save assistant response to history with session_id: {session_id}")
+            # Add response to context
+            context.append({"role": "assistant", "content": response})
+            
+            # Update context
+            self._active_contexts[session_id] = context
+            
+            # Save messages to chat history service
+            chat_history_service.add_message(message, "user", session_id)
+            chat_history_service.add_message(response, "assistant", session_id)
             
             return response
                 
         except Exception as e:
             logger.error(f"Error generating agent response: {str(e)}", exc_info=True)
             error_response = f"I'm sorry, I encountered an error while processing your request. Error: {str(e)}"
-            
-            # Save error response to history
             chat_history_service.add_message(error_response, "assistant", session_id)
-            
             return error_response
 
 # Create a singleton instance
