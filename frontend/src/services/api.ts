@@ -24,6 +24,12 @@ interface ChatResponse {
   session_id?: string;
 }
 
+interface ClearChatResponse {
+  success: boolean;
+  session_id: string;
+  message: string;
+}
+
 /**
  * Get the current session ID from local storage
  * @returns The session ID or undefined if not found
@@ -115,15 +121,45 @@ export const sendMessage = async (message: string): Promise<string> => {
  * Clear the chat history
  * @returns Success status
  */
-export const clearChatHistory = async (): Promise<boolean> => {
+export const clearChatHistory = async (): Promise<ClearChatResponse> => {
   try {
+    console.log('[DEBUG] Attempting to clear chat history...');
     const sessionId = getSessionId();
-    console.log(`[DEBUG] Clearing chat history for session: ${sessionId || 'none'}`);
-    const response = await api.post('/chat/clear', { session_id: sessionId });
-    console.log(`[DEBUG] Clear history response:`, response.data);
-    return response.data.success || false;
+    console.log('[DEBUG] Current session ID:', sessionId);
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (sessionId) {
+      headers['X-Session-ID'] = sessionId;
+      console.log('[DEBUG] Added session ID to headers');
+    }
+    
+    const response = await fetch(`${API_URL}/chat/clear`, {
+      method: 'POST',
+      headers: headers
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear chat history');
+    }
+
+    const result = await response.json();
+    console.log('[DEBUG] Clear chat response:', result);
+    
+    if (result.success) {
+      console.log('[DEBUG] Clearing local session data...');
+      clearSessionId();
+      if (result.session_id) {
+        console.log('[DEBUG] Saving new session ID:', result.session_id);
+        saveSessionId(result.session_id);
+      }
+    }
+
+    return result;
   } catch (error) {
     console.error('[DEBUG] Error clearing chat history:', error);
-    return false;
+    throw error;
   }
 }; 

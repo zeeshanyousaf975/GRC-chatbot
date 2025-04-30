@@ -53,12 +53,22 @@
   }
 }
 
+.chat-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background-color: white;
+  border-top: 1px solid #eaeaea;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
 .clear-chat-button {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: #ff4d4f;
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -66,15 +76,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 120px;
+  justify-content: center;
 }
 
 .clear-chat-button::before {
-  content: '↺';
+  content: '🗑️';
   font-size: 16px;
 }
 
 .clear-chat-button:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: #ff7875;
   transform: translateY(-1px);
 }
 
@@ -85,6 +97,7 @@
 .clear-chat-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: #ffa39e;
 }
 
 .chat-container {
