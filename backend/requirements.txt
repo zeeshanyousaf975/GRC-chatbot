@@ -8,4 +8,8 @@ loguru==0.7.2
 pytest==7.4.4
 pyautogen==0.2.13
 groq==0.4.0
-python-multipart==0.0.7 
+python-multipart==0.0.7
+aiohttp==3.9.3
+python-jose==3.3.0
+passlib==1.7.4
+bcrypt==4.1.2 
