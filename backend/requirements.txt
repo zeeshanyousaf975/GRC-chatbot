@@ -1,0 +1,32 @@
+# API Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.23.2
+
+# Database
+neo4j>=5.14.0
+
+# LangChain and LLM
+langchain>=0.0.325
+langchain-core>=0.3.49
+langchain-groq>=0.3.2
+langchain-community>=0.0.1
+langchain-neo4j>=0.0.1
+groq>=0.4.0
+openai>=1.0.0
+
+# Vector Processing
+sentence-transformers>=2.2.2
+huggingface-hub>=0.20.0
+transformers>=4.41.0
+
+# Pydantic
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Utilities
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
+numpy>=1.24.0
+pandas>=2.0.0
+requests>=2.31.0
+tqdm>=4.66.0 
